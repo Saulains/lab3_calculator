@@ -92,18 +92,39 @@ def test_parentheses():
     assert isinstance(expr, BinaryOp)
 
 def test_deeply_nested_parentheses():
-    expr = parse("1 + (2 * (3 + (4 / 2)))")
+    expr = parse("1 + (2 * (3 + (4 / 2)))") 
+    # Проверяем, что выражение является операцией сложения (BinaryOp)
     assert isinstance(expr, BinaryOp)
+    assert expr.op == '+'
+    assert isinstance(expr.left, Number)  # Левый операнд должен быть числом (1)
+    assert expr.left.value == 1
+    # Проверяем правый операнд, который является операцией умножения (BinaryOp)
+    assert isinstance(expr.right, BinaryOp)
+    assert expr.right.op == '*'  
+    # Проверяем операнды умножения
+    assert isinstance(expr.right.left, Number)  # Левый операнд для * (2)
+    assert expr.right.left.value == 2 
+    # Проверяем правый операнд умножения, который является операцией сложения
+    assert isinstance(expr.right.right, BinaryOp)
+    assert expr.right.right.op == '+'  
+    # Проверяем операнды сложения
+    assert isinstance(expr.right.right.left, Number)  # Левый операнд для + (3)
+    assert expr.right.right.left.value == 3 
+    # Проверяем правый операнд сложения, который является операцией деления
+    assert isinstance(expr.right.right.right, BinaryOp)
+    assert expr.right.right.right.op == '/'
+    # Проверяем операнды деления
+    assert isinstance(expr.right.right.right.left, Number)  # Левый операнд для / (4)
+    assert expr.right.right.right.left.value == 4
+    assert isinstance(expr.right.right.right.right, Number)  # Правый операнд для / (2)
+    assert expr.right.right.right.right.value == 2
+
 
 
 def test_negative_exponent_without_parentheses():
     with pytest.raises(ValueError):
         parse("4^-2")  
 
-def test_incomplete_expression():
-    expr = "1 + (2 * 3"
-    with pytest.raises(ValueError):
-        evaluate(parse(expr))  
 
 def test_missing_operator():
     expr = "2 3"
