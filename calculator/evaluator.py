@@ -1,7 +1,5 @@
 import math
-
 from calculator.parser import UnaryOp, BinaryOp, Number
-
 
 def evaluate(expr):
     if isinstance(expr, Number):
@@ -26,7 +24,12 @@ def evaluate(expr):
             if math.isinf(left / right):
                 raise OverflowError("Result is infinite")
             return left / right
+        elif expr.op == '^':
+            # Проверка на отрицательную степень и некорректный синтаксис
+            if left < 0 and not right.is_integer():
+                raise ValueError("A negative number cannot be raised to a non-integer power")
+            return left ** right
         else:
             raise ValueError(f"Unknown operator: {expr.op}")
     else:
-        raise TypeError("Invalid expression type")
+        raise ValueError("Invalid expression type") 

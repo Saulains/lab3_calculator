@@ -34,10 +34,39 @@ def test_unknown_operator():
 def test_unary_minus():
     expr = UnaryOp('-', Number(5))
     assert evaluate(expr) == -5
+    assert evaluate(parse("-(3+4)")) == -7
 
 def test_nested_unary():
     expr = BinaryOp(UnaryOp('-', Number(3)), '+', Number(7))
     assert evaluate(expr) == 4
+
+def test_scientific():
+    assert evaluate(parse("1.25e2")) == 125.0
+
+def test_parentheses():
+    result = evaluate(parse("1 + 2 / (3 + 4)"))
+    assert abs(result - 1.2857142857142856) < 1e-10
+
+def test_near_zero_division():
+    expr = "1 / 1e-300"
+    result = evaluate(parse(expr))
+    assert result > 1e+299
+
+def test_negative_exponent():
+    assert evaluate(parse("4^(-2)")) == 0.0625
+
+def test_negative_base_non_integer_exponent():
+    expr = BinaryOp(Number(-2), '^', Number(0.5))  
+    with pytest.raises(ValueError):
+        evaluate(expr)
+
+def test_exponentiation():
+    assert evaluate(parse("2^3")) == 8
+    assert evaluate(parse("3^2")) == 9
+    assert evaluate(parse("2.5^2")) == 6.25
+    assert evaluate(parse("(-2)^2")) == 4
+    assert evaluate(parse("2^(-3)")) == 0.125
+
 
 # Добавление тестов с вещественными числами:
 @pytest.mark.parametrize("expr_str, expected", [
@@ -49,3 +78,14 @@ def test_nested_unary():
 def test_float_operations(expr_str, expected):
     result = evaluate(parse(expr_str))
     assert result == pytest.approx(expected, rel=1e-15)  # Допустимая погрешность
+
+def test_operation_order():
+    assert evaluate(parse("1 + 2 * 3")) == 7  # 1 + (2 * 3)
+    assert evaluate(parse("3 + 2 * 3")) == 9  # 3 + (2 * 3)
+    assert evaluate(parse("(1 + 2) * 3")) == 9  # (1 + 2) * 3
+    assert evaluate(parse("1 + (2 * 3)")) == 7  # 1 + (2 * 3)
+
+def test_incomplete_expression():
+    expr = "1 + (2 * 3"
+    with pytest.raises(ValueError):
+        evaluate(parse(expr))  

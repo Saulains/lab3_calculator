@@ -1,5 +1,6 @@
 import pytest
 from calculator.parser import parse, Number, BinaryOp, UnaryOp
+from calculator.evaluator import evaluate
 
 def test_single_number():
     expr = parse("42")
@@ -29,7 +30,7 @@ def test_multi_digit_numbers():
     assert expr.left.value == 123
     assert expr.right.value == 456
 
-@pytest.mark.parametrize("bad_expr", ["2 ^ 4", "2 /", "1 + 4j", "0; import os", "2 ** 2"])
+@pytest.mark.parametrize("bad_expr", ["2 /", "1 + 4j", "0; import os", "2 ** 2"])
 def test_invalid_expressions(bad_expr):
     with pytest.raises(ValueError):
         parse(bad_expr)
@@ -45,6 +46,18 @@ def test_unbalanced_parentheses():
 def test_extra_tokens():
     with pytest.raises(ValueError):
         parse("1 + 2 3")
+
+def test_scientific_notation():
+    expr = parse("1.25e+2")
+    assert isinstance(expr, Number)
+    assert expr.value == 125.0
+
+def test_exponentiation():
+    expr = parse("2^3")
+    assert isinstance(expr, BinaryOp)
+    assert expr.op == '^'
+    assert isinstance(expr.left, Number) and expr.left.value == 2
+    assert isinstance(expr.right, Number) and expr.right.value == 3
 
 def test_unary_minus():
     expr = parse("-42")
@@ -73,3 +86,53 @@ def test_parse():
     assert isinstance(expr, BinaryOp)  
     assert isinstance(expr.left, Number)  
     assert expr.left.value == 1.5  
+
+def test_parentheses():
+    expr = parse("1 + 2 / (3 + 4)")
+    assert isinstance(expr, BinaryOp)
+
+def test_deeply_nested_parentheses():
+    expr = parse("1 + (2 * (3 + (4 / 2)))")
+    assert isinstance(expr, BinaryOp)
+
+
+def test_negative_exponent_without_parentheses():
+    with pytest.raises(ValueError):
+        parse("4^-2")  
+
+def test_incomplete_expression():
+    expr = "1 + (2 * 3"
+    with pytest.raises(ValueError):
+        evaluate(parse(expr))  
+
+def test_missing_operator():
+    expr = "2 3"
+    with pytest.raises(ValueError):
+        evaluate(parse(expr))  
+
+
+def test_repeated_operators():
+    expr = "1 ++ 2"
+    with pytest.raises(ValueError):
+        parse(expr)  
+    expr = "1 -(- 2"
+    with pytest.raises(ValueError):
+        parse(expr)  
+    expr = "1 +- 2"
+    with pytest.raises(ValueError):
+        parse(expr)  
+    expr = "1 **+ 2"
+    with pytest.raises(ValueError):
+        parse(expr) 
+
+def test_unexpected_operator_after_parenthesis():
+    invalid_expressions = [
+        "(+3 + 2)",   
+        "(*4 + 1)",   
+        "(/5 - 2)",  
+        "(^2 + 1)"  
+    ]
+    
+    for expr in invalid_expressions:
+        with pytest.raises(ValueError, match=r"Unexpected operator '.*' after '\('"):
+            parse(expr)
