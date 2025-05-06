@@ -36,6 +36,10 @@ def tokenize(expression: str):
             pos = match.end()
         else:
             raise ValueError(f"Unexpected character: {expression[pos]}")
+    for i in range(1, len(tokens)):
+        if tokens[i] in '+-*/^' and tokens[i-1] in '+-*/^':
+            raise ValueError(f"Two operators in a row: '{tokens[i-1]}{tokens[i]}'")
+
     return tokens
 
 def parse(expression: str) -> Expression:
