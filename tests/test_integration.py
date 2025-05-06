@@ -25,3 +25,12 @@ def test_complex():
 def test_negative_exponent_with_parentheses():
     expr = parse("4^(-2)")
     assert evaluate(expr) == 0.0625
+
+def test_nested_functions():
+    assert abs(evaluate(parse("sin(cos(0))")) - 0.841) < 0.01
+    assert abs(evaluate(parse("sqrt(cos(0))")) - 1) < 0.01
+    assert abs(evaluate(parse("tg(cos(0))")) - 1.557) < 0.01
+    assert abs(evaluate(parse("ln(exp(1)) - 1"))) < 0.01
+    assert abs(evaluate(parse("exp(ln(e))")) - 2.718) < 0.01
+    assert abs(evaluate(parse("sqrt(ln(exp(1)))")) - 1) < 0.01
+    assert abs(evaluate(parse("cos(tg(0))")) - 1) < 0.01

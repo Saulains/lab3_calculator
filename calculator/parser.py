@@ -18,9 +18,20 @@ class UnaryOp(Expression):
         self.op = op
         self.operand = operand
 
+class Function(Expression):
+    def __init__(self, name: str, arg: Expression):
+        self.name = name
+        self.arg = arg
+
+CONSTANTS = {
+    'pi': 3.141592653589793,
+    'e': 2.718281828459045,
+}
+
+FUNCTIONS = {'sqrt', 'sin', 'cos', 'tg', 'ctg', 'ln', 'exp'}
 
 def tokenize(expression: str):
-    token_pattern = re.compile(r'\d+\.\d+(e[+-]?\d+)?|\d+(e[+-]?\d+)?|[+\-*/^()]')
+    token_pattern = re.compile(r'\d+\.\d+(e[+-]?\d+)?|\d+(e[+-]?\d+)?|[+\-*/^()]|[a-zA-Z_][a-zA-Z_0-9]*')
     pos = 0
     tokens = []
 
@@ -54,7 +65,17 @@ def parse(expression: str) -> Expression:
             if not tokens:
                 raise ValueError("Unexpected end of expression")
             token = tokens.pop(0)
+            
+            if token in FUNCTIONS:
+                if not tokens or tokens.pop(0) != '(':
+                    raise ValueError("Expected '(' after function name")
+                arg = parse_expr(tokens)
+                if not tokens or tokens.pop(0) != ')':
+                    raise ValueError("Missing closing parenthesis after function argument")
+                return Function(token, arg)
 
+            elif token in CONSTANTS:
+                return Number(CONSTANTS[token])
             if token == '-':
                 if not tokens:
                     raise ValueError("Invalid syntax after unary minus")
