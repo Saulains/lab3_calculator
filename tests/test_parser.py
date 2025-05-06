@@ -68,3 +68,8 @@ def test_unary_minus_without_parentheses_should_fail():
     with pytest.raises(ValueError):
         parse("2 * -3")
 
+def test_parse():
+    expr = parse("1.5 + 2.5")
+    assert isinstance(expr, BinaryOp)  
+    assert isinstance(expr.left, Number)  
+    assert expr.left.value == 1.5  
