@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Bytecode files
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+
+# VS Code, PyCharm, etc.
+.vscode/
+.idea/
+
+# Test/cache artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Misc
+*.log
