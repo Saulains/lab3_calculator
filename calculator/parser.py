@@ -28,7 +28,7 @@ CONSTANTS = {
     'e': 2.718281828459045,
 }
 
-FUNCTIONS = {'sqrt', 'sin', 'cos', 'tg', 'ctg', 'ln', 'exp'}
+FUNCTIONS = {'sqrt', 'sin', 'cos', 'tg', 'ctg', 'ln', 'exp', 'arctg'}
 
 def tokenize(expression: str):
     token_pattern = re.compile(r'\d+\.\d+(e[+-]?\d+)?|\d+(e[+-]?\d+)?|[+\-*/^()]|[a-zA-Z_][a-zA-Z_0-9]*')

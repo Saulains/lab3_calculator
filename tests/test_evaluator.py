@@ -1,6 +1,6 @@
 import pytest
 import math
-from calculator.parser import parse, Number, BinaryOp, UnaryOp
+from calculator.parser import parse, Number, BinaryOp, UnaryOp, Function
 from calculator.evaluator import evaluate
 
 @pytest.mark.parametrize("expr, result", [
@@ -106,3 +106,22 @@ def test_functions():
     assert abs(evaluate(parse("pi")) - 3.141592653589793) < 0.01
     assert abs(evaluate(parse("e")) - 2.718281828459045) < 0.01
     assert abs(evaluate(parse("sqrt(ln(e))")) - 1) < 0.01
+    
+
+@pytest.mark.parametrize("expr, expected", [
+    (Function('arctg', Number(1)), math.pi / 4), 
+    (Function('arctg', Number(0)), 0),             
+    (Function('arctg', Number(-1)), -math.pi / 4), 
+])
+def test_arctg_radians(expr, expected):
+    result = evaluate(expr)
+    assert result == pytest.approx(expected, rel=1e-9)  
+
+@pytest.mark.parametrize("expr, expected", [
+    (Function('arctg', Number(1)), 45),  
+    (Function('arctg', Number(0)), 0),     
+    (Function('arctg', Number(-1)), -45),  
+])
+def test_arctg_degrees(expr, expected):
+    result = evaluate(expr, degrees=True)
+    assert result == pytest.approx(expected, rel=1e-9)  

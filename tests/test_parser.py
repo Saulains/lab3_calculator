@@ -1,5 +1,5 @@
 import pytest
-from calculator.parser import parse, Number, BinaryOp, UnaryOp
+from calculator.parser import parse, Number, BinaryOp, UnaryOp, Function
 from calculator.evaluator import evaluate
 
 def test_single_number():
@@ -197,3 +197,11 @@ def test_e_constant():
 def test_combined_expression():
     expr = parse("sqrt(ln(e))")
     assert expr is not None
+
+
+def test_parse_arctg():
+    expr = parse("arctg(1)")
+    assert isinstance(expr, Function)
+    assert expr.name == "arctg"
+    assert isinstance(expr.arg, Number)
+    assert expr.arg.value == 1

@@ -51,6 +51,9 @@ def evaluate(expr, degrees=False):
                 return math.log(arg)
             case 'exp':
                 return math.exp(arg)
+            case 'arctg':
+                result = math.atan(arg)
+                return math.degrees(result) if degrees else result
             case _:
                 raise ValueError(f"Unsupported function: {expr.name}")
 
